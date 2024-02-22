@@ -1,0 +1,29 @@
+on:
+  push:
+    tags:
+      - "dev*"
+jobs:
+
+  build:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v3
+      with:
+        version: 8
+    - name: Install dependencies
+      run: pnpm install
+    - name: build
+      run : pnpm build
+    - name: copy file via ssh password
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        source: .next/standalone
+        target: /root/next/
+        strip_components: 1
+        overwrite: true
